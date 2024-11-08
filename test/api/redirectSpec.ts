@@ -1,16 +1,16 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 import frisby = require('frisby')
-const config = require('config')
+import config from 'config'
 
 const URL = 'http://localhost:3000'
 
 describe('/redirect', () => {
-  it('GET redirected to https://github.com/bkimminich/juice-shop when this URL is passed as "to" parameter', () => {
-    return frisby.get(`${URL}/redirect?to=https://github.com/bkimminich/juice-shop`, { redirect: 'manual' })
+  it('GET redirected to https://github.com/juice-shop/juice-shop when this URL is passed as "to" parameter', () => {
+    return frisby.get(`${URL}/redirect?to=https://github.com/juice-shop/juice-shop`, { redirect: 'manual' })
       .expect('status', 302)
   })
 
@@ -48,34 +48,36 @@ describe('/redirect', () => {
     return frisby.get(`${URL}/redirect`)
       .expect('status', 500)
       .expect('header', 'content-type', /text\/html/)
-      .expect('bodyContains', `<h1>${config.get('application.name')} (Express`)
+      .expect('bodyContains', `<h1>${config.get<string>('application.name')} (Express`)
       .expect('bodyContains', 'TypeError')
-      .expect('bodyContains', '&#39;includes&#39; of undefined')
+      .expect('bodyContains', 'of undefined')
+      .expect('bodyContains', '&#39;includes&#39;')
   })
 
   it('GET error message with information leakage when calling /redirect with unrecognized query parameter', () => {
     return frisby.get(`${URL}/redirect?x=y`)
       .expect('status', 500)
       .expect('header', 'content-type', /text\/html/)
-      .expect('bodyContains', `<h1>${config.get('application.name')} (Express`)
+      .expect('bodyContains', `<h1>${config.get<string>('application.name')} (Express`)
       .expect('bodyContains', 'TypeError')
-      .expect('bodyContains', '&#39;includes&#39; of undefined')
+      .expect('bodyContains', 'of undefined')
+      .expect('bodyContains', '&#39;includes&#39;')
   })
 
   it('GET error message hinting at allowlist validation when calling /redirect with an unrecognized "to" target', () => {
     return frisby.get(`${URL}/redirect?to=whatever`)
       .expect('status', 406)
       .expect('header', 'content-type', /text\/html/)
-      .expect('bodyContains', `<h1>${config.get('application.name')} (Express`)
+      .expect('bodyContains', `<h1>${config.get<string>('application.name')} (Express`)
       .expect('bodyContains', 'Unrecognized target URL for redirect: whatever')
   })
 
-  it('GET redirected to target URL in "to" parameter when a white-listed URL is part of the query string', () => {
-    return frisby.get(`${URL}/redirect?to=/score-board?satisfyIndexOf=https://github.com/bkimminich/juice-shop`)
+  it('GET redirected to target URL in "to" parameter when a allow-listed URL is part of the query string', () => {
+    return frisby.get(`${URL}/redirect?to=/score-board?satisfyIndexOf=https://github.com/juice-shop/juice-shop`)
       .expect('status', 200)
       .expect('header', 'content-type', /text\/html/)
-      .expect('bodyContains', 'main-es2018.js')
-      .expect('bodyContains', 'runtime-es2018.js')
-      .expect('bodyContains', 'polyfills-es2018.js')
+      .expect('bodyContains', 'main.js')
+      .expect('bodyContains', 'runtime.js')
+      .expect('bodyContains', 'polyfills.js')
   })
 })

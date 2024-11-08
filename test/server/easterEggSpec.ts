@@ -1,36 +1,39 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 import sinon = require('sinon')
-const chai = require('chai')
-const sinonChai = require('sinon-chai')
+import chai = require('chai')
+import sinonChai = require('sinon-chai')
 const expect = chai.expect
 chai.use(sinonChai)
 
 describe('easterEgg', () => {
   const serveEasterEgg = require('../../routes/easterEgg')
   const challenges = require('../../data/datacache').challenges
+  let req: any
+  let res: any
+  let save: any
 
   beforeEach(() => {
-    this.res = { sendFile: sinon.spy() }
-    this.req = {}
-    this.save = () => ({
+    res = { sendFile: sinon.spy() }
+    req = {}
+    save = () => ({
       then () { }
     })
   })
 
   it('should serve /frontend/dist/frontend/assets/private/threejs-demo.html', () => {
-    serveEasterEgg()(this.req, this.res)
+    serveEasterEgg()(req, res)
 
-    expect(this.res.sendFile).to.have.been.calledWith(sinon.match(/frontend[/\\]dist[/\\]frontend[/\\]assets[/\\]private[/\\]threejs-demo\.html/))
+    expect(res.sendFile).to.have.been.calledWith(sinon.match(/frontend[/\\]dist[/\\]frontend[/\\]assets[/\\]private[/\\]threejs-demo\.html/))
   })
 
   it('should solve "easterEggLevelTwoChallenge"', () => {
-    challenges.easterEggLevelTwoChallenge = { solved: false, save: this.save }
+    challenges.easterEggLevelTwoChallenge = { solved: false, save }
 
-    serveEasterEgg()(this.req, this.res)
+    serveEasterEgg()(req, res)
 
     expect(challenges.easterEggLevelTwoChallenge.solved).to.equal(true)
   })

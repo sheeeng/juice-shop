@@ -1,24 +1,37 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
+import { type Request, type Response, type NextFunction } from 'express'
+import { UserModel } from '../models/user'
+import { decode } from 'jsonwebtoken'
+import * as security from '../lib/insecurity'
 
-import models = require('../models/index')
-const utils = require('../lib/utils')
-const security = require('../lib/insecurity')
+async function retrieveUserList (req: Request, res: Response, next: NextFunction) {
+  try {
+    const users = await UserModel.findAll()
 
-module.exports = function retrieveUserList () {
-  return (req, res, next) => {
-    models.User.findAll().then(users => {
-      const usersWithLoginStatus = utils.queryResultToJson(users)
-      usersWithLoginStatus.data.forEach(user => {
-        user.token = security.authenticatedUsers.tokenOf(user)
-        user.password = user.password ? user.password.replace(/./g, '*') : null
-        user.totpSecret = user.totpSecret ? user.totpSecret.replace(/./g, '*') : null
+    res.json({
+      status: 'success',
+      data: users.map((user) => {
+        const userToken = security.authenticatedUsers.tokenOf(user)
+        let lastLoginTime: number | null = null
+        if (userToken) {
+          const parsedToken = decode(userToken, { json: true })
+          lastLoginTime = parsedToken ? Math.floor(new Date(parsedToken?.iat ?? 0 * 1000).getTime()) : null
+        }
+
+        return {
+          ...user.dataValues,
+          password: user.password?.replace(/./g, '*'),
+          totpSecret: user.totpSecret?.replace(/./g, '*'),
+          lastLoginTime
+        }
       })
-      res.json(usersWithLoginStatus)
-    }).catch(error => {
-      next(error)
     })
+  } catch (error) {
+    next(error)
   }
 }
+
+export default () => retrieveUserList

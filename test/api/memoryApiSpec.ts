@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 import frisby = require('frisby')
-const config = require('config')
-const path = require('path')
+import { expect } from '@jest/globals'
+import config from 'config'
+import path from 'path'
 const fs = require('fs')
 
 const jsonHeader = { 'content-type': 'application/json' }
@@ -21,7 +22,7 @@ describe('/rest/memories', () => {
     return frisby.post(REST_URL + '/user/login', {
       headers: jsonHeader,
       body: {
-        email: 'jim@' + config.get('application.domain'),
+        email: 'jim@' + config.get<string>('application.domain'),
         password: 'ncc-1701'
       }
     })
@@ -42,6 +43,7 @@ describe('/rest/memories', () => {
 
     return frisby.post(REST_URL + '/memories', {
       headers: {
+        // @ts-expect-error FIXME form.getHeaders() is not found
         'Content-Type': form.getHeaders()['content-type']
       },
       body: form
@@ -58,7 +60,7 @@ describe('/rest/memories', () => {
     return frisby.post(REST_URL + '/user/login', {
       headers: jsonHeader,
       body: {
-        email: 'jim@' + config.get('application.domain'),
+        email: 'jim@' + config.get<string>('application.domain'),
         password: 'ncc-1701'
       }
     })
@@ -67,6 +69,7 @@ describe('/rest/memories', () => {
         return frisby.post(REST_URL + '/memories', {
           headers: {
             Authorization: 'Bearer ' + jsonLogin.authentication.token,
+            // @ts-expect-error FIXME form.getHeaders() is not found
             'Content-Type': form.getHeaders()['content-type']
           },
           body: form
@@ -84,7 +87,7 @@ describe('/rest/memories', () => {
     return frisby.post(REST_URL + '/user/login', {
       headers: jsonHeader,
       body: {
-        email: 'jim@' + config.get('application.domain'),
+        email: 'jim@' + config.get<string>('application.domain'),
         password: 'ncc-1701'
       }
     })
@@ -93,6 +96,7 @@ describe('/rest/memories', () => {
         return frisby.post(REST_URL + '/memories', {
           headers: {
             Authorization: 'Bearer ' + jsonLogin.authentication.token,
+            // @ts-expect-error FIXME form.getHeaders() is not found
             'Content-Type': form.getHeaders()['content-type']
           },
           body: form
@@ -103,5 +107,17 @@ describe('/rest/memories', () => {
             expect(json.data.UserId).toBe(2)
           })
       })
+  })
+
+  it('Should not crash the node-js server when sending invalid content like described in CVE-2022-24434', () => {
+    return frisby.post(REST_URL + '/memories', {
+      headers: {
+        'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundaryoo6vortfDzBsDiro',
+        'Content-Length': '145'
+      },
+      body: '------WebKitFormBoundaryoo6vortfDzBsDiro\r\n Content-Disposition: form-data; name="bildbeschreibung"\r\n\r\n\r\n------WebKitFormBoundaryoo6vortfDzBsDiro--'
+    })
+      .expect('status', 500)
+      .expect('bodyContains', 'Error: Malformed part header')
   })
 })

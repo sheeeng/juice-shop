@@ -1,14 +1,15 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 import chai = require('chai')
-const sinonChai = require('sinon-chai')
+import sinonChai = require('sinon-chai')
+import validateConfig from '../../lib/startup/validateConfig'
+
 const expect = chai.expect
 chai.use(sinonChai)
 
-const validateConfig = require('../../lib/startup/validateConfig')
 const { checkUnambiguousMandatorySpecialProducts, checkUniqueSpecialOnProducts, checkYamlSchema, checkMinimumRequiredNumberOfProducts, checkUnambiguousMandatorySpecialMemories, checkMinimumRequiredNumberOfMemories, checkUniqueSpecialOnMemories, checkSpecialMemoriesHaveNoUserAssociated, checkNecessaryExtraKeysOnSpecialProducts } = require('../../lib/startup/validateConfig')
 
 describe('configValidation', () => {
@@ -102,7 +103,7 @@ describe('configValidation', () => {
       expect(checkNecessaryExtraKeysOnSpecialProducts(products)).to.equal(true)
     })
 
-    xit('should fail if product has no exifForBlueprintChallenge', () => { // TODO Turn back on with v13.x release
+    it('should fail if product has no exifForBlueprintChallenge', () => {
       const products = [
         {
           name: 'Apple Juice',
@@ -385,12 +386,12 @@ describe('configValidation', () => {
     })
   })
 
-  it('should accept the default config', () => {
-    expect(validateConfig({ exitOnFailure: false })).to.equal(true)
+  it(`should accept the active config from config/${process.env.NODE_ENV}.yml`, async () => {
+    expect(await validateConfig({ exitOnFailure: false })).to.equal(true)
   })
 
-  it('should fail if the config is invalid', () => {
-    expect(validateConfig({ products: [], exitOnFailure: false })).to.equal(false)
+  it('should fail if the config is invalid', async () => {
+    expect(await validateConfig({ products: [], exitOnFailure: false })).to.equal(false)
   })
 
   it('should accept a config with valid schema', () => {

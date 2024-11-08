@@ -1,19 +1,48 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 /* jslint node: true */
 
-export = (sequelize, { STRING }) => {
-  const Complaint = sequelize.define('Complaint', {
-    message: STRING,
-    file: STRING
-  })
+import {
+  Model,
+  type InferAttributes,
+  type InferCreationAttributes,
+  DataTypes,
+  type CreationOptional,
+  type Sequelize
+} from 'sequelize'
 
-  Complaint.associate = ({ User }) => {
-    Complaint.belongsTo(User, { constraints: true, foreignKeyConstraint: true })
-  }
-
-  return Complaint
+class Complaint extends Model<
+InferAttributes<Complaint>,
+InferCreationAttributes<Complaint>
+> {
+  declare UserId: number
+  declare id: CreationOptional<number>
+  declare message: string
+  declare file: CreationOptional<string>
 }
+
+const ComplaintModelInit = (sequelize: Sequelize) => {
+  Complaint.init(
+    {
+      UserId: {
+        type: DataTypes.INTEGER
+      },
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      message: DataTypes.STRING,
+      file: DataTypes.STRING
+    },
+    {
+      tableName: 'Complaints',
+      sequelize
+    }
+  )
+}
+
+export { Complaint as ComplaintModel, ComplaintModelInit }

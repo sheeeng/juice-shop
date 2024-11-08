@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
@@ -18,8 +18,7 @@ import { ChangePasswordComponent } from './change-password/change-password.compo
 import { ComplaintComponent } from './complaint/complaint.component'
 import { ChatbotComponent } from './chatbot/chatbot.component'
 import { RecycleComponent } from './recycle/recycle.component'
-import { ScoreBoardComponent } from './score-board/score-board.component'
-import { RouterModule, Routes, UrlMatchResult, UrlSegment } from '@angular/router'
+import { RouterModule, type Routes, type UrlMatchResult, type UrlSegment } from '@angular/router'
 import { TwoFactorAuthEnterComponent } from './two-factor-auth-enter/two-factor-auth-enter.component'
 import { ErrorPageComponent } from './error-page/error-page.component'
 import { PrivacySecurityComponent } from './privacy-security/privacy-security.component'
@@ -41,14 +40,29 @@ import { DeliveryMethodComponent } from './delivery-method/delivery-method.compo
 import { PhotoWallComponent } from './photo-wall/photo-wall.component'
 import { DeluxeUserComponent } from './deluxe-user/deluxe-user.component'
 import { AccountingGuard, AdminGuard, LoginGuard } from './app.guard'
+import { NFTUnlockComponent } from './nft-unlock/nft-unlock.component'
+import { ScoreBoardComponent } from './score-board/score-board.component'
 
-// vuln-code-snippet start adminSectionChallenge scoreBoardChallenge
+const loadFaucetModule = async () => {
+  const module = await import('./faucet/faucet.module')
+  return module.FaucetModule
+}
+const loadWeb3WalletModule = async () => {
+  const module = await import('./wallet-web3/wallet-web3.module')
+  return module.WalletWeb3Module
+}
+
+const loadWeb3SandboxtModule = async () => {
+  const module = await import('./web3-sandbox/web3-sandbox.module')
+  return module.FaucetModule
+}
+// vuln-code-snippet start adminSectionChallenge scoreBoardChallenge web3SandboxChallenge
 const routes: Routes = [
-  {
+  { // vuln-code-snippet neutral-line adminSectionChallenge
     path: 'administration', // vuln-code-snippet vuln-line adminSectionChallenge
-    component: AdministrationComponent,
-    canActivate: [AdminGuard]
-  },
+    component: AdministrationComponent, // vuln-code-snippet neutral-line adminSectionChallenge
+    canActivate: [AdminGuard] // vuln-code-snippet neutral-line adminSectionChallenge
+  }, // vuln-code-snippet neutral-line adminSectionChallenge
   {
     path: 'accounting',
     component: AccountingComponent,
@@ -155,10 +169,10 @@ const routes: Routes = [
     path: 'hacking-instructor',
     component: SearchResultComponent
   },
-  {
+  { // vuln-code-snippet neutral-line scoreBoardChallenge
     path: 'score-board', // vuln-code-snippet vuln-line scoreBoardChallenge
-    component: ScoreBoardComponent
-  },
+    component: ScoreBoardComponent // vuln-code-snippet neutral-line scoreBoardChallenge
+  }, // vuln-code-snippet neutral-line scoreBoardChallenge
   {
     path: 'track-result',
     component: TrackResultComponent
@@ -200,16 +214,32 @@ const routes: Routes = [
       }
     ]
   },
+  {
+    path: 'juicy-nft',
+    component: NFTUnlockComponent
+  },
+  {
+    path: 'wallet-web3',
+    loadChildren: async () => await loadWeb3WalletModule()
+  },
+  { // vuln-code-snippet neutral-line web3SandboxChallenge
+    path: 'web3-sandbox', // vuln-code-snippet vuln-line web3SandboxChallenge
+    loadChildren: async () => await loadWeb3SandboxtModule() // vuln-code-snippet neutral-line web3SandboxChallenge
+  }, // vuln-code-snippet neutral-line web3SandboxChallenge
+  {
+    path: 'bee-haven',
+    loadChildren: async () => await loadFaucetModule()
+  },
   // vuln-code-snippet start tokenSaleChallenge
   {
     matcher: oauthMatcher,
     data: { params: (window.location.href).substr(window.location.href.indexOf('#')) },
     component: OAuthComponent
   },
-  {
+  { // vuln-code-snippet neutral-line tokenSaleChallenge
     matcher: tokenMatcher, // vuln-code-snippet vuln-line tokenSaleChallenge
-    component: TokenSaleComponent
-  },
+    component: TokenSaleComponent // vuln-code-snippet neutral-line tokenSaleChallenge
+  }, // vuln-code-snippet neutral-line tokenSaleChallenge
   {
     path: '403',
     component: ErrorPageComponent
@@ -219,9 +249,9 @@ const routes: Routes = [
     component: SearchResultComponent
   }
 ]
-// vuln-code-snippet end adminSectionChallenge scoreBoardChallenge
+// vuln-code-snippet end adminSectionChallenge scoreBoardChallenge web3SandboxChallenge
 
-export const Routing = RouterModule.forRoot(routes, { useHash: true, relativeLinkResolution: 'legacy' })
+export const Routing = RouterModule.forRoot(routes, { useHash: true })
 
 export function oauthMatcher (url: UrlSegment[]): UrlMatchResult {
   if (url.length === 0) {
@@ -235,33 +265,33 @@ export function oauthMatcher (url: UrlSegment[]): UrlMatchResult {
   return null as unknown as UrlMatchResult
 }
 
-export function tokenMatcher (url: UrlSegment[]): UrlMatchResult {
-  if (url.length === 0) {
-    return null as unknown as UrlMatchResult
-  }
-
-  const path = url[0].toString()
+export function tokenMatcher (url: UrlSegment[]): UrlMatchResult { // vuln-code-snippet neutral-line tokenSaleChallenge
+  if (url.length === 0) { // vuln-code-snippet neutral-line tokenSaleChallenge
+    return null as unknown as UrlMatchResult // vuln-code-snippet neutral-line tokenSaleChallenge
+  } // vuln-code-snippet neutral-line tokenSaleChallenge
+  // vuln-code-snippet neutral-line tokenSaleChallenge
+  const path = url[0].toString() // vuln-code-snippet neutral-line tokenSaleChallenge
   // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
   if (path.match((token1(25, 184, 174, 179, 182, 186) + (36669).toString(36).toLowerCase() + token2(13, 144, 87, 152, 139, 144, 83, 138) + (10).toString(36).toLowerCase()))) { // vuln-code-snippet vuln-line tokenSaleChallenge
-    return ({ consumed: url })
-  }
+    return ({ consumed: url }) // vuln-code-snippet neutral-line tokenSaleChallenge
+  } // vuln-code-snippet neutral-line tokenSaleChallenge
+  // vuln-code-snippet neutral-line tokenSaleChallenge
+  return null as unknown as UrlMatchResult // vuln-code-snippet neutral-line tokenSaleChallenge
+} // vuln-code-snippet neutral-line tokenSaleChallenge
 
-  return null as unknown as UrlMatchResult
-}
+export function token1 (...args: number[]) { // vuln-code-snippet neutral-line tokenSaleChallenge
+  const L = Array.prototype.slice.call(args) // vuln-code-snippet neutral-line tokenSaleChallenge
+  const D = L.shift() // vuln-code-snippet neutral-line tokenSaleChallenge
+  return L.reverse().map(function (C, A) { // vuln-code-snippet neutral-line tokenSaleChallenge
+    return String.fromCharCode(C - D - 45 - A) // vuln-code-snippet neutral-line tokenSaleChallenge
+  }).join('') // vuln-code-snippet neutral-line tokenSaleChallenge
+} // vuln-code-snippet neutral-line tokenSaleChallenge
 
-export function token1 (...args: number[]) {
-  const L = Array.prototype.slice.call(args)
-  const D = L.shift()
-  return L.reverse().map(function (C, A) {
-    return String.fromCharCode(C - D - 45 - A)
-  }).join('')
-}
-
-export function token2 (...args: number[]) {
-  const T = Array.prototype.slice.call(arguments)
-  const M = T.shift()
-  return T.reverse().map(function (m, H) {
-    return String.fromCharCode(m - M - 24 - H)
-  }).join('')
-}
+export function token2 (...args: number[]) { // vuln-code-snippet neutral-line tokenSaleChallenge
+  const T = Array.prototype.slice.call(arguments) // vuln-code-snippet neutral-line tokenSaleChallenge
+  const M = T.shift() // vuln-code-snippet neutral-line tokenSaleChallenge
+  return T.reverse().map(function (m, H) { // vuln-code-snippet neutral-line tokenSaleChallenge
+    return String.fromCharCode(m - M - 24 - H) // vuln-code-snippet neutral-line tokenSaleChallenge
+  }).join('') // vuln-code-snippet neutral-line tokenSaleChallenge
+} // vuln-code-snippet neutral-line tokenSaleChallenge
 // vuln-code-snippet end tokenSaleChallenge

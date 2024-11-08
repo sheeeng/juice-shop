@@ -3,35 +3,41 @@
  * SPDX-License-Identifier: MIT
  */
 
-const logger = require('./logger')
-const colors = require('colors/safe')
-const solves = {}
+import logger from './logger'
+import colors from 'colors/safe'
+const solves: Record<string, { 'find it': boolean, 'fix it': boolean, attempts: { 'find it': number, 'fix it': number } }> = {}
 
-exports.storeFindItVerdict = (challengeKey, verdict: boolean) => {
+type Phase = 'find it' | 'fix it'
+
+export const storeFindItVerdict = (challengeKey: string, verdict: boolean) => {
   storeVerdict(challengeKey, 'find it', verdict)
 }
 
-exports.storeFixItVerdict = (challengeKey, verdict: boolean) => {
+export const storeFixItVerdict = (challengeKey: string, verdict: boolean) => {
   storeVerdict(challengeKey, 'fix it', verdict)
 }
 
-exports.calculateFindItAccuracy = (challengeKey) => {
+export const calculateFindItAccuracy = (challengeKey: string) => {
   return calculateAccuracy(challengeKey, 'find it')
 }
 
-exports.calculateFixItAccuracy = (challengeKey) => {
+export const calculateFixItAccuracy = (challengeKey: string) => {
   return calculateAccuracy(challengeKey, 'fix it')
 }
 
-exports.totalFindItAccuracy = () => {
+export const totalFindItAccuracy = () => {
   return totalAccuracy('find it')
 }
 
-exports.totalFixItAccuracy = () => {
+export const totalFixItAccuracy = () => {
   return totalAccuracy('fix it')
 }
 
-function totalAccuracy (phase: string) {
+export const getFindItAttempts = (challengeKey: string) => {
+  return solves[challengeKey] ? solves[challengeKey].attempts['find it'] : 0
+}
+
+function totalAccuracy (phase: Phase) {
   let sumAccuracy = 0
   let totalSolved = 0
   Object.entries(solves).forEach(([key, value]) => {
@@ -43,16 +49,16 @@ function totalAccuracy (phase: string) {
   return sumAccuracy / totalSolved
 }
 
-function calculateAccuracy (challengeKey, phase: string) {
+function calculateAccuracy (challengeKey: string, phase: Phase) {
   let accuracy = 0
   if (solves[challengeKey][phase]) {
     accuracy = 1 / solves[challengeKey].attempts[phase]
   }
-  logger.info(`Accuracy for '${phase === 'fix it' ? 'Fix It' : 'Find It'}' phase of coding challenge ${colors.cyan(challengeKey)}: ${accuracy > 0.5 ? colors.green(accuracy) : (accuracy > 0.25 ? colors.yellow(accuracy) : colors.red(accuracy))}`)
+  logger.info(`Accuracy for '${phase === 'fix it' ? 'Fix It' : 'Find It'}' phase of coding challenge ${colors.cyan(challengeKey)}: ${accuracy > 0.5 ? colors.green(accuracy.toString()) : (accuracy > 0.25 ? colors.yellow(accuracy.toString()) : colors.red(accuracy.toString()))}`)
   return accuracy
 }
 
-function storeVerdict (challengeKey, phase: string, verdict: boolean) {
+function storeVerdict (challengeKey: string, phase: Phase, verdict: boolean) {
   if (!solves[challengeKey]) {
     solves[challengeKey] = { 'find it': false, 'fix it': false, attempts: { 'find it': 0, 'fix it': 0 } }
   }

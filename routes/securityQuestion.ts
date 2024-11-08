@@ -1,29 +1,32 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
-import models = require('../models/index')
+import { type Request, type Response, type NextFunction } from 'express'
+import { SecurityAnswerModel } from '../models/securityAnswer'
+import { UserModel } from '../models/user'
+import { SecurityQuestionModel } from '../models/securityQuestion'
 
 module.exports = function securityQuestion () {
-  return ({ query }, res, next) => {
+  return ({ query }: Request, res: Response, next: NextFunction) => {
     const email = query.email
-    models.SecurityAnswer.findOne({
+    SecurityAnswerModel.findOne({
       include: [{
-        model: models.User,
-        where: { email }
+        model: UserModel,
+        where: { email: email?.toString() }
       }]
-    }).then(answer => {
-      if (answer) {
-        models.SecurityQuestion.findByPk(answer.SecurityQuestionId).then(question => {
+    }).then((answer: SecurityAnswerModel | null) => {
+      if (answer != null) {
+        SecurityQuestionModel.findByPk(answer.SecurityQuestionId).then((question: SecurityQuestionModel | null) => {
           res.json({ question })
-        }).catch(error => {
+        }).catch((error: Error) => {
           next(error)
         })
       } else {
         res.json({})
       }
-    }).catch(error => {
+    }).catch((error: unknown) => {
       next(error)
     })
   }

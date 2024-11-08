@@ -4,7 +4,7 @@
     "outDir": "./build",
     "allowJs": true,
     "module": "commonjs",
-    "target": "es2018",
+    "target": "es2020",
     "moduleResolution": "node",
     "sourceMap": true,
     "strict": true,
@@ -13,11 +13,12 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "lib": [
-      "es2018",
+      "es2020",
       "dom"
     ]
   },
   "include" : [
+    "cypress/**/*.ts",
     "data/**/*.ts",
     "lib/**/*.ts",
     "lib/**/*.js",
@@ -26,8 +27,8 @@
     "test/**/*.ts",
     "views/**/*.ts",
     "views/**/*.js",
-    "*.ts",
-    "*.js"
+    "rsn/**/*.ts",
+    "*.ts"
   ],
   "exclude": [
     "node_modules",
@@ -35,10 +36,7 @@
     "dist",
     "build",
     "vagrant",
-    "**/*.d.ts",
-    ".eslintrc.js"
-  ],
-  "ts-node": {
-    "transpileOnly": true  // allow ts-node to run code with compile errors ignored. Remove this line after ts migration.
-  }
+    "data/static/codefixes/**",
+    "**/*.d.ts"
+  ]
 }

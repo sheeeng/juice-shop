@@ -1,23 +1,51 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 /* jslint node: true */
-export = (sequelize, { INTEGER }) => {
-  const Wallet = sequelize.define('Wallet', {
-    balance: {
-      type: INTEGER,
-      validate: {
-        isInt: true
-      },
-      defaultValue: 0
-    }
-  })
+import {
+  Model,
+  type InferAttributes,
+  type InferCreationAttributes,
+  DataTypes,
+  type CreationOptional,
+  type Sequelize
+} from 'sequelize'
 
-  Wallet.associate = ({ User }) => {
-    Wallet.belongsTo(User, { constraints: true, foreignKeyConstraint: true })
-  }
-
-  return Wallet
+class Wallet extends Model<
+InferAttributes<Wallet>,
+InferCreationAttributes<Wallet>
+> {
+  declare UserId: number
+  declare id: CreationOptional<number>
+  declare balance: CreationOptional<number>
 }
+
+const WalletModelInit = (sequelize: Sequelize) => {
+  Wallet.init(
+    {
+      UserId: {
+        type: DataTypes.INTEGER
+      },
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      balance: {
+        type: DataTypes.INTEGER,
+        validate: {
+          isInt: true
+        },
+        defaultValue: 0
+      }
+    },
+    {
+      tableName: 'Wallets',
+      sequelize
+    }
+  )
+}
+
+export { Wallet as WalletModel, WalletModelInit }

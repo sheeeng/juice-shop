@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 import frisby = require('frisby')
+import config from 'config'
 const Joi = frisby.Joi
 const security = require('../../lib/insecurity')
-const config = require('config')
 
 const API_URL = 'http://localhost:3000/api'
 const REST_URL = 'http://localhost:3000/rest'
@@ -59,7 +59,7 @@ describe('/api/SecurityQuestions/:id', () => {
 
 describe('/rest/user/security-question', () => {
   it('GET security question for an existing user\'s email address', () => {
-    return frisby.get(`${REST_URL}/user/security-question?email=jim@${config.get('application.domain')}`)
+    return frisby.get(`${REST_URL}/user/security-question?email=jim@${config.get<string>('application.domain')}`)
       .expect('status', 200)
       .expect('json', 'question', {
         question: 'Your eldest siblings middle name?'
@@ -76,7 +76,7 @@ describe('/rest/user/security-question', () => {
     return frisby.get(`${REST_URL}/user/security-question`)
       .expect('status', 500)
       .expect('header', 'content-type', /text\/html/)
-      .expect('bodyContains', `<h1>${config.get('application.name')} (Express`)
+      .expect('bodyContains', `<h1>${config.get<string>('application.name')} (Express`)
       .expect('bodyContains', 'Error: WHERE parameter &quot;email&quot; has invalid &quot;undefined&quot; value')
   })
 

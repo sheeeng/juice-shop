@@ -1,15 +1,17 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 import path = require('path')
-const utils = require('../lib/utils')
-const challenges = require('../data/datacache').challenges
+import { type Request, type Response } from 'express'
+import { challenges } from '../data/datacache'
+
+import challengeUtils = require('../lib/challengeUtils')
 
 module.exports = function serveEasterEgg () {
-  return (req, res) => {
-    utils.solveIf(challenges.easterEggLevelTwoChallenge, () => { return true })
+  return (req: Request, res: Response) => {
+    challengeUtils.solveIf(challenges.easterEggLevelTwoChallenge, () => { return true })
     res.sendFile(path.resolve('frontend/dist/frontend/assets/private/threejs-demo.html'))
   }
 }

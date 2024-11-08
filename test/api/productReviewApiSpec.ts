@@ -1,13 +1,15 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 import frisby = require('frisby')
+import config from 'config'
+import { type Product } from '../../data/types'
+import { type IncomingMessage } from 'http'
 const Joi = frisby.Joi
 const security = require('../../lib/insecurity')
 const http = require('http')
-const config = require('config')
 
 const REST_URL = 'http://localhost:3000/rest'
 
@@ -36,6 +38,11 @@ describe('/rest/products/:id/reviews', () => {
       .expect('jsonTypes', reviewResponseSchema)
   })
 
+  xit('GET product reviews by alphanumeric non-mongoDB-command product id', () => { // FIXME Turn on when #1960 is resolved
+    return frisby.get(`${REST_URL}/products/kaboom/reviews`)
+      .expect('status', 400)
+  })
+
   it('PUT single product review can be created', () => {
     return frisby.put(`${REST_URL}/products/1/reviews`, {
       body: {
@@ -55,13 +62,13 @@ describe('/rest/products/reviews', () => {
     updated: Joi.array()
   }
 
-  let reviewId
+  let reviewId: string
 
   beforeAll((done) => {
-    http.get(`${REST_URL}/products/1/reviews`, (res) => {
+    http.get(`${REST_URL}/products/1/reviews`, (res: IncomingMessage) => {
       let body = ''
 
-      res.on('data', chunk => {
+      res.on('data', (chunk: string) => {
         body += chunk
       })
 
@@ -96,6 +103,26 @@ describe('/rest/products/reviews', () => {
       .expect('status', 401)
   })
 
+  it('POST non-existing product review cannot be liked', () => {
+    return frisby.post(`${REST_URL}/user/login`, {
+      headers: jsonHeader,
+      body: {
+        email: 'bjoern.kimminich@gmail.com',
+        password: 'bW9jLmxpYW1nQGhjaW5pbW1pay5ucmVvamI='
+      }
+    })
+      .expect('status', 200)
+      .then(({ json: jsonLogin }) => {
+        return frisby.post(`${REST_URL}/products/reviews`, {
+          headers: { Authorization: `Bearer ${jsonLogin.authentication.token}` },
+          body: {
+            id: 'does not exist'
+          }
+        })
+          .expect('status', 404)
+      })
+  })
+
   it('POST single product review can be liked', () => {
     return frisby.post(`${REST_URL}/user/login`, {
       headers: jsonHeader,
@@ -119,7 +146,7 @@ describe('/rest/products/reviews', () => {
 
   it('PATCH multiple product review via injection', () => {
     // Count all the reviews. (Count starts at one because of the review inserted by the other tests...)
-    const totalReviews = config.get('products').reduce((sum, { reviews = [] }) => sum + reviews.length, 1)
+    const totalReviews = config.get<Product[]>('products').reduce((sum: number, { reviews = [] }: any) => sum + reviews.length, 1)
 
     return frisby.patch(`${REST_URL}/products/reviews`, {
       headers: authHeader,

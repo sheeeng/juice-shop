@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
@@ -10,7 +10,7 @@ module.exports = {
     node: true,
     jasmine: true,
     mocha: true,
-    protractor: true
+    jest: true
   },
   globals: {
     Atomics: 'readonly',
@@ -21,6 +21,7 @@ module.exports = {
     project: './tsconfig.json'
   },
   ignorePatterns: [
+    '.eslintrc.js',
     'app/private/**',
     'vagrant/**',
     'frontend/**',
@@ -33,13 +34,10 @@ module.exports = {
       parser: '@typescript-eslint/parser',
       rules: {
         'no-void': 'off', // conflicting with recommendation from @typescript-eslint/no-floating-promises
-        // FIXME warnings below this line need to be checked and fixed. Line end comments below are number of findings per rule on 24.03.2021
-        '@typescript-eslint/no-misused-promises': 'off', // 97
-        '@typescript-eslint/explicit-function-return-type': 'off', // 132
-        '@typescript-eslint/restrict-plus-operands': 'off', // 292
-        '@typescript-eslint/strict-boolean-expressions': 'off', // 388
-        '@typescript-eslint/restrict-template-expressions': 'off', // 466
-        '@typescript-eslint/no-var-requires': 'off' // 502
+        // FIXME warnings below this line need to be checked and fixed.
+        '@typescript-eslint/explicit-function-return-type': 'off',
+        '@typescript-eslint/strict-boolean-expressions': 'off',
+        '@typescript-eslint/no-var-requires': 'off'
       }
     }
   ]

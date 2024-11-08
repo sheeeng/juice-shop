@@ -1,22 +1,23 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 import frisby = require('frisby')
-const config = require('config')
+import { expect } from '@jest/globals'
+import config from 'config'
 
 const API_URL = 'http://localhost:3000/api'
 const REST_URL = 'http://localhost:3000/rest'
 
 const jsonHeader = { 'content-type': 'application/json' }
-let authHeader
+let authHeader: { Authorization: string, 'content-type': string }
 
 beforeAll(() => {
   return frisby.post(REST_URL + '/user/login', {
     headers: jsonHeader,
     body: {
-      email: 'jim@' + config.get('application.domain'),
+      email: 'jim@' + config.get<string>('application.domain'),
       password: 'ncc-1701'
     }
   })
@@ -202,7 +203,8 @@ describe('/api/BasketItems/:id', () => {
           }
         })
           .expect('status', 400)
-          .expect('json', { message: 'null: `ProductId` cannot be updated due `noUpdate` constraint', errors: [{ field: 'ProductId', message: '`ProductId` cannot be updated due `noUpdate` constraint' }] })
+          .expect('json',
+            { message: 'null: `ProductId` cannot be updated due `noUpdate` constraint', errors: [{ field: 'ProductId', message: '`ProductId` cannot be updated due `noUpdate` constraint' }] })
       })
   })
 

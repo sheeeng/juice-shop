@@ -1,18 +1,48 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 /* jslint node: true */
-export = (sequelize, { STRING, INTEGER }) => {
-  const Memory = sequelize.define('Memory', {
-    caption: STRING,
-    imagePath: STRING
-  })
 
-  Memory.associate = ({ User }) => {
-    Memory.belongsTo(User, { constraints: true, foreignKeyConstraint: true })
-  }
+import {
+  Model,
+  type InferAttributes,
+  type InferCreationAttributes,
+  DataTypes,
+  type CreationOptional,
+  type Sequelize
+} from 'sequelize'
 
-  return Memory
+class Memory extends Model<
+InferAttributes<Memory>,
+InferCreationAttributes<Memory>
+> {
+  declare UserId: number
+  declare id: CreationOptional<number>
+  declare caption: string
+  declare imagePath: string
 }
+
+const MemoryModelInit = (sequelize: Sequelize) => {
+  Memory.init(
+    {
+      UserId: {
+        type: DataTypes.INTEGER
+      },
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      caption: DataTypes.STRING,
+      imagePath: DataTypes.STRING
+    },
+    {
+      tableName: 'Memories',
+      sequelize
+    }
+  )
+}
+
+export { Memory as MemoryModel, MemoryModelInit }

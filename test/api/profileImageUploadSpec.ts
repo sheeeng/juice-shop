@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 import frisby = require('frisby')
+import config from 'config'
+import path from 'path'
 const fs = require('fs')
-const path = require('path')
-const config = require('config')
 
 const jsonHeader = { 'content-type': 'application/json' }
 const REST_URL = 'http://localhost:3000/rest'
@@ -21,7 +21,7 @@ describe('/profile/image/file', () => {
     return frisby.post(`${REST_URL}/user/login`, {
       headers: jsonHeader,
       body: {
-        email: `jim@${config.get('application.domain')}`,
+        email: `jim@${config.get<string>('application.domain')}`,
         password: 'ncc-1701'
       }
     })
@@ -30,6 +30,7 @@ describe('/profile/image/file', () => {
         return frisby.post(`${URL}/profile/image/file`, {
           headers: {
             Cookie: `token=${jsonLogin.authentication.token}`,
+            // @ts-expect-error FIXME form.getHeaders() is not found
             'Content-Type': form.getHeaders()['content-type']
           },
           body: form,
@@ -47,7 +48,7 @@ describe('/profile/image/file', () => {
     return frisby.post(`${REST_URL}/user/login`, {
       headers: jsonHeader,
       body: {
-        email: `jim@${config.get('application.domain')}`,
+        email: `jim@${config.get<string>('application.domain')}`,
         password: 'ncc-1701'
       }
     })
@@ -56,13 +57,14 @@ describe('/profile/image/file', () => {
         return frisby.post(`${URL}/profile/image/file`, {
           headers: {
             Cookie: `token=${jsonLogin.authentication.token}`,
+            // @ts-expect-error FIXME form.getHeaders() is not found
             'Content-Type': form.getHeaders()['content-type']
           },
           body: form
         })
           .expect('status', 415)
           .expect('header', 'content-type', /text\/html/)
-          .expect('bodyContains', `<h1>${config.get('application.name')} (Express`)
+          .expect('bodyContains', `<h1>${config.get<string>('application.name')} (Express`)
           .expect('bodyContains', 'Error: Profile image upload does not accept this file type')
       })
   })
@@ -73,6 +75,7 @@ describe('/profile/image/file', () => {
     form.append('file', fs.createReadStream(file))
 
     return frisby.post(`${URL}/profile/image/file`, {
+      // @ts-expect-error FIXME form.getHeaders() is not found
       headers: { 'Content-Type': form.getHeaders()['content-type'] },
       body: form
     })
@@ -90,7 +93,7 @@ describe('/profile/image/url', () => {
     return frisby.post(`${REST_URL}/user/login`, {
       headers: jsonHeader,
       body: {
-        email: `jim@${config.get('application.domain')}`,
+        email: `jim@${config.get<string>('application.domain')}`,
         password: 'ncc-1701'
       }
     })
@@ -99,6 +102,7 @@ describe('/profile/image/url', () => {
         return frisby.post(`${URL}/profile/image/url`, {
           headers: {
             Cookie: `token=${jsonLogin.authentication.token}`,
+            // @ts-expect-error FIXME form.getHeaders() is not found
             'Content-Type': form.getHeaders()['content-type']
           },
           body: form,
@@ -115,7 +119,7 @@ describe('/profile/image/url', () => {
     return frisby.post(`${REST_URL}/user/login`, {
       headers: jsonHeader,
       body: {
-        email: `jim@${config.get('application.domain')}`,
+        email: `jim@${config.get<string>('application.domain')}`,
         password: 'ncc-1701'
       }
     })
@@ -124,6 +128,7 @@ describe('/profile/image/url', () => {
         return frisby.post(`${URL}/profile/image/url`, {
           headers: {
             Cookie: `token=${jsonLogin.authentication.token}`,
+            // @ts-expect-error FIXME form.getHeaders() is not found
             'Content-Type': form.getHeaders()['content-type']
           },
           body: form,
@@ -138,6 +143,7 @@ describe('/profile/image/url', () => {
     form.append('imageUrl', 'https://placekitten.com/g/100/100')
 
     return frisby.post(`${URL}/profile/image/url`, {
+      // @ts-expect-error FIXME form.getHeaders() is not found
       headers: { 'Content-Type': form.getHeaders()['content-type'] },
       body: form
     })

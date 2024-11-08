@@ -1,13 +1,15 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 import path = require('path')
-const utils = require('../lib/utils')
+import { type Request, type Response, type NextFunction } from 'express'
+
+import * as utils from '../lib/utils'
 
 module.exports = function serveAngularClient () {
-  return ({ url }, res, next) => {
+  return ({ url }: Request, res: Response, next: NextFunction) => {
     if (!utils.startsWith(url, '/api') && !utils.startsWith(url, '/rest')) {
       res.sendFile(path.resolve('frontend/dist/frontend/index.html'))
     } else {

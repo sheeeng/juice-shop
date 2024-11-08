@@ -1,14 +1,16 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 import frisby = require('frisby')
+import { expect } from '@jest/globals'
+import type { Product as ProductConfig } from '../../lib/config.types'
+import config from 'config'
 const security = require('../../lib/insecurity')
-const config = require('config')
 
-const christmasProduct = config.get('products').filter(({ useForChristmasSpecialChallenge }) => useForChristmasSpecialChallenge)[0]
-const pastebinLeakProduct = config.get('products').filter(({ keywordsForPastebinDataLeakChallenge }) => keywordsForPastebinDataLeakChallenge)[0]
+const christmasProduct = config.get<ProductConfig[]>('products').filter(({ useForChristmasSpecialChallenge }) => useForChristmasSpecialChallenge)[0]
+const pastebinLeakProduct = config.get<ProductConfig[]>('products').filter(({ keywordsForPastebinDataLeakChallenge }) => keywordsForPastebinDataLeakChallenge)[0]
 
 const API_URL = 'http://localhost:3000/api'
 const REST_URL = 'http://localhost:3000/rest'
@@ -36,7 +38,7 @@ describe('/rest/products/search', () => {
     return frisby.get(`${REST_URL}/products/search?q=';`)
       .expect('status', 500)
       .expect('header', 'content-type', /text\/html/)
-      .expect('bodyContains', `<h1>${config.get('application.name')} (Express`)
+      .expect('bodyContains', `<h1>${config.get<string>('application.name')} (Express`)
       .expect('bodyContains', 'SQLITE_ERROR: near &quot;;&quot;: syntax error')
   })
 
@@ -44,7 +46,7 @@ describe('/rest/products/search', () => {
     return frisby.get(`${REST_URL}/products/search?q=' union select id,email,password from users--`)
       .expect('status', 500)
       .expect('header', 'content-type', /text\/html/)
-      .expect('bodyContains', `<h1>${config.get('application.name')} (Express`)
+      .expect('bodyContains', `<h1>${config.get<string>('application.name')} (Express`)
       .expect('bodyContains', 'SQLITE_ERROR: near &quot;union&quot;: syntax error')
   })
 
@@ -52,7 +54,7 @@ describe('/rest/products/search', () => {
     return frisby.get(`${REST_URL}/products/search?q=') union select id,email,password from users--`)
       .expect('status', 500)
       .expect('header', 'content-type', /text\/html/)
-      .expect('bodyContains', `<h1>${config.get('application.name')} (Express`)
+      .expect('bodyContains', `<h1>${config.get<string>('application.name')} (Express`)
       .expect('bodyContains', 'SQLITE_ERROR: near &quot;union&quot;: syntax error')
   })
 
@@ -60,7 +62,7 @@ describe('/rest/products/search', () => {
     return frisby.get(`${REST_URL}/products/search?q=')) union select * from users--`)
       .expect('status', 500)
       .expect('header', 'content-type', /text\/html/)
-      .expect('bodyContains', `<h1>${config.get('application.name')} (Express`)
+      .expect('bodyContains', `<h1>${config.get<string>('application.name')} (Express`)
       .expect('bodyContains', 'SQLITE_ERROR: SELECTs to the left and right of UNION do not have the same number of result columns', () => {})
   })
 
@@ -86,17 +88,17 @@ describe('/rest/products/search', () => {
       .expect('header', 'content-type', /application\/json/)
       .expect('json', 'data.?', {
         id: 1,
-        price: `admin@${config.get('application.domain')}`,
+        price: `admin@${config.get<string>('application.domain')}`,
         deluxePrice: security.hash('admin123')
       })
       .expect('json', 'data.?', {
         id: 2,
-        price: `jim@${config.get('application.domain')}`,
+        price: `jim@${config.get<string>('application.domain')}`,
         deluxePrice: security.hash('ncc-1701')
       })
       .expect('json', 'data.?', {
         id: 3,
-        price: `bender@${config.get('application.domain')}`
+        price: `bender@${config.get<string>('application.domain')}`
         // no check for Bender's password as it might have already been changed by different test
       })
       .expect('json', 'data.?', {
@@ -106,13 +108,13 @@ describe('/rest/products/search', () => {
       })
       .expect('json', 'data.?', {
         id: 5,
-        price: `ciso@${config.get('application.domain')}`,
+        price: `ciso@${config.get<string>('application.domain')}`,
         deluxePrice: security.hash('mDLx?94T~1CfVfZMzw@sJ9f?s3L6lbMqE70FfI8^54jbNikY5fymx7c!YbJb')
       })
       .expect('json', 'data.?', {
         id: 6,
-        price: `support@${config.get('application.domain')}`,
-        deluxePrice: security.hash('J6aVjTgOpRs$?5l+Zkq2AYnCE@RF§P')
+        price: `support@${config.get<string>('application.domain')}`,
+        deluxePrice: security.hash('J6aVjTgOpRs@?5l!Zkq2AYnCE@RF$P')
       })
   })
 
@@ -121,7 +123,7 @@ describe('/rest/products/search', () => {
       .expect('status', 200)
       .expect('header', 'content-type', /application\/json/)
       .expect('json', 'data.?', {
-        id: 'CREATE TABLE `BasketItems` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `quantity` INTEGER, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, `BasketId` INTEGER REFERENCES `Baskets` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, `ProductId` INTEGER REFERENCES `Products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, UNIQUE (`BasketId`, `ProductId`))'
+        id: 'CREATE TABLE `BasketItems` (`ProductId` INTEGER REFERENCES `Products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, `BasketId` INTEGER REFERENCES `Baskets` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, `id` INTEGER PRIMARY KEY AUTOINCREMENT, `quantity` INTEGER, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, UNIQUE (`ProductId`, `BasketId`))'
       })
       .expect('json', 'data.?', {
         id: 'CREATE TABLE sqlite_sequence(name,seq)'

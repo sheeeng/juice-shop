@@ -1,17 +1,18 @@
 /*
- * Copyright (c) 2014-2021 Bjoern Kimminich & the OWASP Juice Shop contributors.
+ * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
 
 import frisby = require('frisby')
-const config = require('config')
+import config from 'config'
+import type { Product as ProductConfig } from '../../lib/config.types'
 const utils = require('../../lib/utils')
 
 const URL = 'http://localhost:3000'
 
-let blueprint
+let blueprint: string
 
-for (const product of config.get('products')) {
+for (const product of config.get<ProductConfig[]>('products')) {
   if (product.fileForRetrieveBlueprintChallenge) {
     blueprint = product.fileForRetrieveBlueprintChallenge
     break
@@ -23,18 +24,18 @@ describe('Server', () => {
     return frisby.get(URL)
       .expect('status', 200)
       .expect('header', 'content-type', /text\/html/)
-      .expect('bodyContains', 'main-es2018.js')
-      .expect('bodyContains', 'runtime-es2018.js')
-      .expect('bodyContains', 'polyfills-es2018.js')
+      .expect('bodyContains', 'main.js')
+      .expect('bodyContains', 'runtime.js')
+      .expect('bodyContains', 'polyfills.js')
   })
 
   it('GET responds with index.html when visiting application URL with any path', () => {
     return frisby.get(URL + '/whatever')
       .expect('status', 200)
       .expect('header', 'content-type', /text\/html/)
-      .expect('bodyContains', 'main-es2018.js')
-      .expect('bodyContains', 'runtime-es2018.js')
-      .expect('bodyContains', 'polyfills-es2018.js')
+      .expect('bodyContains', 'main.js')
+      .expect('bodyContains', 'runtime.js')
+      .expect('bodyContains', 'polyfills.js')
   })
 
   xit('GET a restricted file directly from file system path on server via Directory Traversal attack loads index.html instead', () => {
@@ -62,6 +63,25 @@ describe('Server', () => {
   it('GET serves a robots.txt file', () => {
     return frisby.get(URL + '/robots.txt')
       .expect('status', 200)
+  })
+
+  it('GET serves a csaf provider-metadata.json', () => {
+    return frisby.get(URL + '/.well-known/csaf/provider-metadata.json')
+      .expect('status', 200)
+  })
+  it('GET serves a csaf index.txt', () => {
+    return frisby.get(URL + '/.well-known/csaf/index.txt')
+      .expect('status', 200)
+  })
+  it('GET serves a csaf changes.csv', () => {
+    return frisby.get(URL + '/.well-known/csaf/changes.csv')
+      .expect('status', 200)
+  })
+  it('GET serves a csaf juice-shop-sa-20200513-express-jwt.json', () => {
+    return frisby.get(URL + '/.well-known/csaf/2017/juice-shop-sa-20200513-express-jwt.json')
+      .expect('status', 200)
+      .expect('bodyContains', 'juice-shop-sa-20200513-express-jwt')
+      .expect('bodyContains', 'We will soon release a patch')
   })
 })
 
