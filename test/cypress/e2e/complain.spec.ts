@@ -12,6 +12,7 @@ describe('/#/complain', () => {
     it('should be possible to upload files greater 100 KB directly through backend', () => {
       cy.window().then(async () => {
         const over100KB = Array.apply(null, new Array(11000)).map(
+          // eslint-disable-next-line @typescript-eslint/unbound-method
           String.prototype.valueOf,
           '1234567890'
         )
@@ -70,11 +71,11 @@ describe('/#/complain', () => {
     it('(triggered for Linux server via .xml upload with XXE attack)', () => {
       cy.task('isDocker').then((isDocker) => {
         if (!isDocker) {
-            cy.get('#complaintMessage').type('XXE File Exfiltration Linux!')
-            cy.get('#file').selectFile('test/files/xxeForLinux.xml')
-            cy.get('#submitButton').click()
-          }
-        })
+          cy.get('#complaintMessage').type('XXE File Exfiltration Linux!')
+          cy.get('#file').selectFile('test/files/xxeForLinux.xml')
+          cy.get('#submitButton').click()
+        }
+      })
     })
 
     it('should be solved either through Windows- or Linux-specific attack path', () => {
@@ -101,15 +102,15 @@ describe('/#/complain', () => {
     it('(triggered via .xml upload with Quadratic Blowup attack)', () => {
       cy.task('isDocker').then((isDocker) => {
         if (!isDocker) {
-            cy.get('#complaintMessage').type('XXE Quadratic Blowup!')
-            cy.get('#file').selectFile('test/files/xxeQuadraticBlowup.xml')
-            cy.get('#submitButton').click()
-            cy.wait(5000) // Wait for 2.5x timeout of XML parser
-          }
-        })
+          cy.get('#complaintMessage').type('XXE Quadratic Blowup!')
+          cy.get('#file').selectFile('test/files/xxeQuadraticBlowup.xml')
+          cy.get('#submitButton').click()
+          cy.wait(5000) // Wait for 2.5x timeout of XML parser
+        }
       })
+    })
 
-    xit('should be solved either through dev/random or Quadratic Blowup attack', () => {// FIXME Unreliable during CI/CD as sometimes the Quadratic Blowup is blocked for entity loops
+    xit('should be solved either through dev/random or Quadratic Blowup attack', () => { // FIXME Unreliable during CI/CD as sometimes the Quadratic Blowup is blocked for entity loops
       cy.task('isDocker').then((isDocker) => {
         if (!isDocker) {
           cy.expectChallengeSolved({ challenge: 'XXE DoS' })
