@@ -137,6 +137,7 @@ mentioned or used!
 
 ### Blogs & Articles
 
+* Blog post on [Cycubix Docs](https://docs.cycubix.com) by [Cycubix Ltd](https://cycubix.com): [Deploy MultiJuicer on DigitalOcean](https://docs.cycubix.com/multijuicer-on-digitalocean/)
 * Blog post on [OWASP.org](https://owasp.org) by Björn Kimminich: [OWASP Juice Shop v20.0.0 — a fresh squeeze of features, now with AI](https://owasp.org/blog/2026/05/13/juice-shop-v20.html)
 * Article on [LinkedIn](https://www.linkedin.com) by [Avinash Mathew Varghese](https://www.linkedin.com/in/avinash-mathew-varghese/): [Deploying OWASP Juice Shop and DVWA as Persistent Attack Targets](https://www.linkedin.com/posts/avinash-mathew-varghese_chapter-13-deploying-vulnerable-web-applications-activity-7436923782453321729-U3QC)
 * Blog post on [ZAP](https://www.zaproxy.org) by Denis Podgurskii: [OWASP PTK Findings as ZAP Alerts (Juice Shop Walkthrough)](https://www.zaproxy.org/blog/2026-04-01-owasp-ptk-findings-to-zap-alerts/) ([YouTube](https://www.youtube.com/watch?v=m3YOB6JqS2c)) :godmode:
@@ -335,6 +336,7 @@ mentioned or used!
 
 #### 2026
 
+* [Hands-on Workshop: OWASP Juice Shop for Beginners](https://appsecdays.pt/trainings/juice-shop.html) with Björn Kimminich, [AppSecDays Portugal 2026](https://appsecdays.pt/), Porto, 23.09.2026
 * [OWASP Juice Shop: Take your security vitamins!](https://ndcsecurity.com/agenda/owasp-juice-shop-take-your-security-vitamins/7a1238226e90) by Björn Kimminich & Jannik Hollenbach, [NDC Security 2026](https://ndcsecurity.com/), Oslo, 05.03.2026 [YouTube](https://www.youtube.com/watch?v=O43oqSEJFQI)
 
 #### 2025
